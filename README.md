@@ -1,11 +1,10 @@
 - [Capstone Project - Azure Machine Learning Engineer Nanodegree](#capstone-project---azure-machine-learning-engineer-nanodegree)
 
-# Capstone Project - Azure Machine Learning Engineer Nanodegree
+# Capstone Project 
+# Azure Machine Learning Engineer Nanodegree
 
 
-In this project, we use the knowledge obtained in **Machine Learning Engineer with Microsoft Azure Nanodegree Program** to solve an interesting problem. 
-
-The problem chosen is the [Kaggle Titanic Challenge](https://www.kaggle.com/c/titanic).  In the famous Titanic shipwreck, some passengers were more likely to survive than others. The dataset from Kaggle platform presents information about 871 passengers and a column that states if they have survived or not. The ultimate goal is to build a model that predicts which passengers survived the Titanic shipwreck. The Titanic Dataset is commonly referred to as the "hello world" of data science.
+I used [Kaggle Titanic Challenge](https://www.kaggle.com/c/titanic) dataset, which consist the data of the famous Titanic shipwreck, showing some passengers were more likely to survive than others. The dataset from Kaggle platform presents information about 871 passengers and a column that states if they have survived or not. The ultimate goal is to build a model that predicts which passengers survived the Titanic shipwreck. The Titanic Dataset is commonly referred to as the "hello world" of data science.
 
 Here we do this in two different ways:
 1) Using AutoML;
@@ -75,11 +74,11 @@ Voting Ensemble uses multiple models as inner estimators and each one has its un
 ![automl_run_details_widget](starter_file/screenshots/best_model_run_id1.PNG)
 
 #### AutoML Best Model Run
-![automl_run_web_gui](starter_file/screenshots/automl_run.png)
+![automl_run_web_gui](starter_file/screenshots/best_model_run_id2.PNG)
 
 #### AutoML Best Model Run Properties
-![automl_run_properties_1](starter_file/screenshots/automl_run_properties_1.png)
-![automl_run_properties_2](starter_file/screenshots/automl_run_properties_2.png)
+![automl_run_properties_1](starter_file/screenshots/hyper_paramete_best_model_accuracy.PNG)
+![automl_run_properties_2](starter_file/screenshots/hyper_paramete_best_modelr.PNG)
 
 ## Hyperparameter Tuning
 Here we are using a Logistic Regression model coming from the SKLearn framework to classify if a passenger would survive or not in the Titanic shipwreck.
@@ -93,86 +92,18 @@ Hyperdrive is used to sample different values for two algorithm hyperparameters:
 My choice here was to sample the values using Random Sampling, in which hyperparameter values are randomly selected from the defined search space. `C` is chosen randomly in uniformly distributed between **0.001** and **1.0**, while `max_iter` is sampled from one of the three values: **1000, 10000, and 100000**.
 
 ### Results
-Surprisingly, the best Logistic Regression model in the HyperDrive run performed even better than the best one in the AutoML run. This model had an **accuracy** of **85,20%**.
+Surprisingly, the best Logistic Regression model in the HyperDrive run performed even better than the best one in the AutoML run. This model had an **accuracy** of **83,85%**.
 
 The parameters used by this classifier are the following:
 * C = 0.8893892118773127
 * Max iterations = 1000
 
 #### HyperDrive Run Details widget
-![hyperdrive_run_details](starter_file/screenshots/hyperdrive_run_details.png)
+![hyperdrive_run_details](starter_file/screenshots/RunDetails_hyper_parameter.PNG)
 
 #### HyperDrive Best Model Run
-![hyperdrive_best_run_graph](starter_file/screenshots/hyperdrive_best_run_graph.png)
+![hyperdrive_best_run_graph](starter_file/screenshots/hyper_para_tuning.PNG)
 
-#### HyperDrive Best Model Run Properties
-![hyperdrive_best_run_parameters](starter_file/screenshots/hyperdrive_best_run_parameters.png)
 
-## Model Deployment
-The model created by the HyperDrive has been deployed in an endpoint that can be accessed using the following REST API:
-`http://XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX.southcentralus.azurecontainer.io/score`
-
-The expected input type consists of a JSON with the following format:
-```json
-"data":
-        [
-          {
-            "PassengerId": integer,
-            "Pclass": integer,
-            "Age": float,
-            "SibSp": integer,
-            "Parch": integer, 
-            "Fare": float,
-            "Q": integer,
-            "S": integer,
-            "male": integer
-          }
-        ]
-```
-
-To query it using a simple input, anyone can mock the following python code:
-
-```python
-import requests
-import json
-
-scoring_uri = 'http://01b44a8b-d762-47c0-af37-16bc6cdf52aa.southcentralus.azurecontainer.io/score'
-
-data = {"data":
-        [
-          {
-            "PassengerId": 812,
-            "Pclass": 2,
-            "Age": 23.0,
-            "SibSp": 0,
-            "Parch": 0, 
-            "Fare": 13.0,
-            "Q": 0,
-            "S": 1,
-            "male": 1
-          }
-        ]
-       }
-
-# Convert to JSON string
-input_data = json.dumps(data)
-# Set the content type
-headers = {'Content-Type': 'application/json'}
-# Make the request and display the response
-resp = requests.post(scoring_uri, input_data, headers=headers)
-print(resp.json())
-```
-
-#### Service of HyperDrive model with "Active" deployment state
-![hyperdrive_service_active](starter_file/screenshots/hyperdrive_service_active.png)
-
-## Future improvements
-
-There are many ways to improve AutoML and HyperDrive runs in this project.
-
-To improve the AutoML, we could choose the best 3 to 5 algorithms that performed well in this classification task and create another AutoML run forbidding any other algorithm type. We could also take a look at the data that has been wrongly classified by the best model and try to identify a pattern that points to transformations that we can perform in the dataset. That can be done by creating a pipeline with a first step to transform the data and a second one to execute the AutoML.
-
-Moving on to the HyperDrive algorithm, we could have used regularization strength as a reference (it was randomly picked) and created a second HyperDrive run using a different sampling method using values closer to it.
-Another strategy would be to test different classifier algorithms in our training script and change their hyperparameters too. We could do that to a finite set of algorithms and hyperparameters and select the best one among all runs. Many other classification algorithms could be tested, like Decision Tree, Random Forest, Support Vector Classification, and so on. Each of these algorithms has different hyperparameters that can be choose using either Random Sampling or other sampling methods. Deep Learning algorithms could also be applied to solve this problem.
-
-Going even further, models performance was measured using the metric `Accuracy` for simplicity, and this could be changed to a more robust metric like `AUC_weighted` for example.
+#### Service of HyperDrive model with "Healthy" deployment state
+![hyperdrive_service_active](starter_file/screenshots/healthy_model.PNG)
