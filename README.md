@@ -1,22 +1,4 @@
 - [Capstone Project - Azure Machine Learning Engineer Nanodegree](#capstone-project---azure-machine-learning-engineer-nanodegree)
-    - [Clarisse Ribeiro](#clarisse-ribeiro)
-  - [Dataset](#dataset)
-    - [Overview](#overview)
-    - [Task](#task)
-    - [Access](#access)
-  - [Automated ML](#automated-ml)
-    - [Results](#results)
-      - [AutoML Run Details widget](#automl-run-details-widget)
-      - [AutoML Best Model Run](#automl-best-model-run)
-      - [AutoML Best Model Run Properties](#automl-best-model-run-properties)
-  - [Hyperparameter Tuning](#hyperparameter-tuning)
-    - [Results](#results-1)
-      - [HyperDrive Run Details widget](#hyperdrive-run-details-widget)
-      - [HyperDrive Best Model Run](#hyperdrive-best-model-run)
-      - [HyperDrive Best Model Run Properties](#hyperdrive-best-model-run-properties)
-  - [Model Deployment](#model-deployment)
-      - [Service of HyperDrive model with "Active" deployment state](#service-of-hyperdrive-model-with-active-deployment-state)
-  - [Future improvements](#future-improvements)
 
 # Capstone Project - Azure Machine Learning Engineer Nanodegree
 
@@ -42,27 +24,20 @@ In the famous Titanic shipwreck, some passengers were more likely to survive tha
 
 Here we use only the "training" data of the original challenge because this is the data with the "Survived" label, which is necessary for the Supervised Learning algorithms that are used in this project.
 
-Find below the data dictionary:
+Find below the defintion of some variables:
 
 Variable | Definition | Key
 ------------ | ------------- | -------------
 Survived | Survival | 0 = No, 1 = Yes
-Nclass | Ticket class | 1 = 1st, 2 = 2nd, 3 = 3rd
-Name | Name | name of the passenger (string)
 Age	| Age | in years
-Pibsp | # of siblings / spouses aboard the Titanic	| 
-Parch | # of parents / children aboard the Titanic	| 
-Ticket | Ticket number	| string
 Fare | Passenger fare | Value (float)
 Cabin | Cabin number |  string
 Q | Port of Embarkation	is Q = Queenstown | 0 = No, 1 = Yes
 S | Port of Embarkation	is S = Southampton | 0 = No, 1 = Yes
 male | Is male. If not, we consider the passenger female. | 0 = No, 1 = Yes
 
-The data has been uploaded to [this repository](https://github.com/clasimoes/nd00333-capstone/blob/master/titanic_data/full_capstone.csv) for ease.
-
 ### Task
-In this project, we aim to create a model with the best possible **Accuracy** to classify if a passenger survives or not the shipwreck.
+In this project, I used ML Stuido to train a model with the best possible **Accuracy** to classify if a passenger survives or not.
 For this, we use two approaches:
 
 1) **Using AutoML**:
@@ -76,23 +51,6 @@ In both cases, the best performing model created during runs can be saved and de
 
 The features that are used in this experiment are the ones described in the data dictionary above. However, in the case of the HyperDrive, we manually remove the columns "Name", "Ticket", and "Cabin" which are not supported by the Logistic Regression classifier.
 
-### Access
-
-The data has been uploaded to [this repository](https://github.com/clasimoes/nd00333-capstone/blob/master/titanic_data/full_capstone.csv) for ease.
-To access it in our Azure notebooks, we need to download it from an external link into the Azure workspace.
-
-For that, we can use the `Dataset` class, which allows importing tabular data from files on the web.
-With that, we become able to create and register a dataset in Azure ML Platform and convert it to a Pandas Dataframe.
-
-```python
-    # Create AML Dataset and register it into Workspace
-    example_data = 'https://raw.githubusercontent.com/clasimoes/nd00333-capstone/master/titanic_data/full_capstone.csv'
-    dataset = Dataset.Tabular.from_delimited_files(example_data)
-    #Register Dataset in Workspace
-    dataset = dataset.register(...)
-```
-
-
 ## Automated ML
 For the AutoML run, first we create a compute cluster to run the experiment. In this cluster, we provide 2 to 10 machines with the **"STANDARD_DS12_V2"** configuration.
 Because we have 10 nodes in our cluster, we can run up to 9 concurrent iterations in our experiment (1 node is meant to be used by the "parent" experiment).
@@ -101,15 +59,7 @@ The constructor of `AutoMLConfig` class takes the following parameters:
 * `compute_target`: cluster where the experiment jobs will run;
 * `task`: type of ML problem to solve, set as `classification`;
 * `experiment_timeout_minutes`: 20;
-* `training_data`: the dataset loaded; 
-* `label_column_name`: The column that should be predicted, which is the "Survived" one; 
-* `path`: the full path to the Azure Machine Learning project folder; 
 * `enable_early_stopping`: makes it possible for the AutoML to stop jobs that are not performing well after a minimum number of iterations; 
-* `featurization`: indicator that featurization step should be done automatically;
-* `debug_log`: The log file to write debug information to; 
-* `automl_settings`: other settings passed as a dictionary. 
-    * `max_concurrent_iterations`: Represents the maximum number of iterations that would be executed in parallel. Set to 9;
-    * `primary_metric`: The metric that Automated Machine Learning will optimize for model selection. We chose to optimize for `Accuracy`.
 
 The `accuracy` metric might be misleading when the training data has very few samples of one of the classes, which is **not** the case in Titanic dataset. The distribution of classes on it is about 40% and 60% of samples in each class. Moreover, accuracy is a straightforward metric and easy to understand. This is the main reason why it has been chosen in this experiment.
 
@@ -118,38 +68,11 @@ Because AutoML is an automated process that might take a long time to use many r
 Featurization enables techniques of feature engineering to be applied to the dataset, enhancing the learning process. Examples of featurization steps are imputing missing values, generation of more features, dropping features with no variance, among others. `Data guardrails` is a feature that helps to identify automatically potential issues with the data, like missing values or class imbalance. Setting the `featurization` option to `auto` specifies that, as part of preprocessing, data guardrails and featurization steps are to be done automatically.
 
 ### Results
-Among 100 experiments included in the AutoML, the best model produced relied on the **Voting Ensemble** algorithm, from the SKLearn framework. This model had an **accuracy** of **83,39%**.
+The best model produced relied on the **Voting Ensemble** algorithm, from the SKLearn framework. This model had an **accuracy** of **84,17%**.
 
 Voting Ensemble uses multiple models as inner estimators and each one has its unique hyperparameters.
-I've chose one of the estimators used by the best model to display the parameters used by it here. The classifier is a **Light GBM** algorithm with the following parameters:
-
-* `boosting_type`: 'gbdt'
-* `class_weight`: None
-* `importance_type`: 'split'
-* `learning_rate`: 0.1
-* `max_depth`: -1
-* `colsample_bytree`: 1.0
-* `colsample_bytree`: 1.0
-* `min_child_samples`: 20
-* `min_child_weight`: 0.001
-* `min_split_gain`: 0.0
-* `n_estimators`: 100
-* `n_jobs`: 1
-* `num_leaves`: 31
-* `objective`: None
-* `random_state`: None
-* `reg_alpha`: 0.0
-* `reg_lambda`: 0.0
-* `silent`: True
-* `subsample`: 1.0
-* `subsample_for_bin`: 200000
-* `subsample_freq`: 0
-* `verbose`: -10
-
-Find below the screenshots of the AutoML run details widget, together with the best run details in the Azure ML platform and its properties in the Jupyter notebook.
-
 #### AutoML Run Details widget
-![automl_run_details_widget](starter_file/screenshots/automl_run_details.png)
+![automl_run_details_widget](starter_file/screenshots/best_model_run_id1.PNG)
 
 #### AutoML Best Model Run
 ![automl_run_web_gui](starter_file/screenshots/automl_run.png)
