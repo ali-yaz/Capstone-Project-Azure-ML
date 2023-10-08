@@ -3,6 +3,7 @@
 # Capstone Project 
 # Azure Machine Learning Engineer Nanodegree
 
+link to the video (https://youtu.be/lv0otwxaE38)
 
 I used [Kaggle Titanic Challenge](https://www.kaggle.com/c/titanic) dataset, which consist the data of the famous Titanic shipwreck, showing some passengers were more likely to survive than others. The dataset from Kaggle platform presents information about 871 passengers and a column that states if they have survived or not. The ultimate goal is to build a model that predicts which passengers survived the Titanic shipwreck. The Titanic Dataset is commonly referred to as the "hello world" of data science.
 
