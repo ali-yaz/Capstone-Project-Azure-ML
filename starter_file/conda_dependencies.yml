@@ -1,0 +1,6 @@
+dependencies:
+- python=3.8.5
+- scikit-learn
+- joblib
+- pip:
+  - azureml-defaults
