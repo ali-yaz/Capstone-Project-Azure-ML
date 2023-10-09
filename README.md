@@ -126,7 +126,7 @@ The parameters used by this classifier are the following:
 #### AutoML Best Model Run Properties
 #### The following screenshot shows how the model is optimized with different hyper parameter values.
 ![automl_run_properties_1](starter_file/screenshots/hyper_paramete_best_model_accuracy.PNG)
-####
+#### The following screenshot shows the run ID of the best model from HyperDrive. Also it shows the optimized values for the two paramteres, C and Max Itiration.
 ![automl_run_properties_2](starter_file/screenshots/hyper_paramete_best_modelr.PNG)
 
 #### Service of HyperDrive model with "Healthy" deployment state
